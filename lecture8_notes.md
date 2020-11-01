@@ -18,9 +18,36 @@ $\begin{aligned} x^{+} &=\underset{z}{\arg \min } \tilde{g}_{t}(z)+h(z) \\ &=\un
 
 仔细看看公式(1)，我们会发现第1项有点类似梯度下降法，但是也不完全一样，前面还有个关于$z$的项；第2项就取当前迭代最优处的$h(z)$即可。
 
-现在，我们定义一个名叫proximal mapping的东西，如下，公式中的$还是Hessian矩阵：
+现在，我们定义一个名叫proximal mapping的东西，如下，公式中的$1/t$还是Hessian矩阵：
 
 $\operatorname{prox}_{t}(x)=\underset{z}{\arg \min } \frac{1}{2 t}\|z-x\|_{2}^{2}+h(z)$
 
 于是，我们的近似梯度算法就可以描述为：
 
+$x^{+}=\operatorname{prox}_{t_{}}\left(x-t \nabla g\left(x\right)\right)$
+
+为了和下降法中的书写形式类似，我们不妨把近似梯度法写成$x^+=x-tG_t(x)$的形式，于是我们很容易得到$G_{t}(x)=\frac{x-\operatorname{prox}_{t}(x-t \nabla g(x))}{t}$
+
+- 近似梯度法的作用
+
+虽然看起来变复杂了（其实也没有很复杂），但是关键在于，$prox_t(\cdot)$不依赖于$g$是什么东西，而只依赖于$h$，在很多情况下，$h$又是可以有解析解的。虽然$g$可以很复杂很复杂，但是它是可微的，所以我们在每一次迭代的过程中只要用它的梯度就OK了。
+
+- ISTA
+
+再回顾一下lasso中的情况，$f(\beta)=\underbrace{\frac{1}{2}\|y-X \beta\|_{2}^{2}}_{g(\beta)}+\underbrace{\lambda\|\beta\|_{1}}_{h(\beta)}$，其中$y \in \mathbb{R}^{n \times p}, X \in \mathbb{R}^{n}$。
+
+OK，现在根据近似梯度法中的规则，我们有$\operatorname{prox}_{t}(\beta)=\underset{z \in \mathbb{R}^{n}}{\arg \min } \frac{1}{2 t}\|\beta-z\|_{2}^{2}+\lambda\|z\|_{1}$，这玩意儿有解析解，也就是soft-thresholding operator，即$S_{\lambda t}(\beta)$,其中，$\left[S_{\lambda t}(\beta)\right]_{i}=\left\{\begin{array}{ll}\beta_{i}-\lambda & \text { if } \quad \beta_{i}>\lambda \\ 0 & \text { if } \quad \lambda \leq \beta_{i} \leq \lambda \quad i=1, \ldots n \\ \beta_{i}+\lambda & \text { if } \quad \beta_{i}<-\lambda\end{array}\right.$
+
+而我们又很容易可以知道$\nabla g(\beta)=-X^{T}(y-X \beta)$，所以，近似梯度法的每一次迭代公式为：
+
+$\beta^{+}=S_{\lambda t}\left(\beta+t X^{T}(y-X \beta)\right)$
+
+这个问题通常被称为ISTA(iterative soft-thresholding algorithm),下图展示了ISTA和次梯度法的收敛对比。
+
+
+
+![image-20201026163000121](/Users/liuzhian/Library/Application Support/typora-user-images/image-20201026163000121.png)
+
+- 近似梯度法的加速
+
+略
